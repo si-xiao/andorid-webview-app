@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "635334867764",
+    "project_id": "game-dev-910e7",
+    "storage_bucket": "game-dev-910e7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635334867764:android:3991d24da4c4c5ca7e0361",
+        "android_client_info": {
+          "package_name": "pub.techfun.platform.p001"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDU1U8xWd36Y0HBUy3qjiE7zwLFPPeYA3I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
