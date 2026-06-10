@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ 不使用传统启动主题，使用 Composable 启动屏 -->
+    <style name="Theme.App.Starting" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/app_splash_bg_color</item>
+        <item name="android:colorBackground">@color/app_splash_bg_color</item>
+        <item name="android:statusBarColor">@color/app_background</item>
+        <item name="android:navigationBarColor">@color/app_background</item>
+        <item name="android:forceDarkAllowed">true</item>
+
+        <!--    指定Android12+启动画面的背景色和中间icon的背景色    -->
+        <item name="android:windowSplashScreenBackground">@color/app_splash_bg_color</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/app_splash_bg_color</item>
+    </style>
+</resources>

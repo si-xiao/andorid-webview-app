@@ -124,7 +124,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
     implementation(libs.androidx.material.icons.extended)
 
     if (enableGoogleServices) {
@@ -134,6 +133,9 @@ dependencies {
     // 协程
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Gson for JSON parsing
+    implementation(libs.gson)
 }
 
 if (enableGoogleServices) {

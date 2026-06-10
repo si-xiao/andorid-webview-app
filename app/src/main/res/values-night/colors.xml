@@ -7,6 +7,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="app_splash_bg_color">#FFFBFE</color>
+    <color name="app_splash_bg_color">#1C1B1F</color>
     <color name="app_background">#FF010928</color>
 </resources>
