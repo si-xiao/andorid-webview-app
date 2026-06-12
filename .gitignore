@@ -8,6 +8,7 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 /.kotlin/errors
+/split-debug-info/*.txt
 .DS_Store
 /build
 /captures

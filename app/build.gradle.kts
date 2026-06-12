@@ -126,16 +126,20 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.material.icons.extended)
 
-    if (enableGoogleServices) {
-        implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
-        implementation("com.google.firebase:firebase-messaging")
-    }
     // 协程
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
     // Gson for JSON parsing
     implementation(libs.gson)
+    // 导入x系列的 webkit 库，
+    // 此库提供的文档级注入，在每次页面开始解析、所有业务 JS 执行前自动注入，刷新 / 跳转都自动重跑，完美解决 “注入时机太早 / 太晚” 问题
+    implementation(libs.androidx.webkit)
+
+    if (enableGoogleServices) {
+        implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
+        implementation("com.google.firebase:firebase-messaging")
+    }
 }
 
 if (enableGoogleServices) {

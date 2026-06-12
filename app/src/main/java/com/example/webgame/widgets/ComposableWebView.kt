@@ -1,6 +1,7 @@
 package com.example.webgame.widgets
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import android.view.ViewGroup
@@ -11,38 +12,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.webgame.isUrlInWhiteList
 import androidx.core.net.toUri
-
-/**
- * WebView 状态数据类
- */
-data class WebViewState(
-    val progress: Int = 0,
-    val canGoBack: Boolean = false,
-    val canGoForward: Boolean = false,
-    val currentUrl: String = "",
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
-
-/**
- * WebView 配置
- */
-data class WebViewSettings(
-    val javaScriptEnabled: Boolean = true,
-    val domStorageEnabled: Boolean = true,
-    val allowFileAccess: Boolean = true,
-    val allowContentAccess: Boolean = true,
-    val loadWithOverviewMode: Boolean = true,
-    val useWideViewPort: Boolean = true,
-    val supportMultipleWindows: Boolean = true,
-    val javaScriptCanOpenWindowsAutomatically: Boolean = true,
-    val mediaPlaybackRequiresUserGesture: Boolean = false,
-    val allowUniversalAccessFromFileURLs: Boolean = true,
-    val mixedContentMode: Int = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW,
-    val userAgent: String? = "Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Mobile Safari/537.36",
-    val zoomControlEnabled: Boolean = false,
-    val displayZoomControls: Boolean = false
-)
+import com.example.webgame.models.WebViewSettings
+import com.example.webgame.models.WebViewState
+import com.example.webgame.utils.JsBridgeSchemeConstants
+import com.example.webgame.utils.webController.WebControllerJBSchemeUtil
+import com.example.webgame.utils.webController.WebControllerUtil
 
 /**
  * Compose WebView 组件
@@ -58,7 +32,7 @@ fun ComposableWebView(
     onPageFinished: ((String) -> Unit)? = null,
     onReceivedError: ((String, String) -> Unit)? = null,
     onReceivedHttpError: ((Int, String) -> Unit)? = null,
-    shouldOverrideUrlLoading: ((String) -> Boolean)? = null,
+    shouldOverrideUrlLoading: ((String?) -> Boolean)? = null,
     onCreateWindow: ((String) -> Boolean)? = null,
     onConsoleMessage: ((String) -> Unit)? = null,
     onWebViewCreated: ((WebView) -> Unit)? = null,
@@ -90,6 +64,7 @@ fun ComposableWebView(
 
                 // 设置 WebViewClient
                 webViewClient = createWebViewClient(
+                    context = context,
                     onPageStarted = { url ->
                         Log.d("ComposableWebView", "onPageStarted: $url")
                         updateState { copy(isLoading = true, currentUrl = url, error = null) }
@@ -147,6 +122,13 @@ fun ComposableWebView(
 
                 // 保存 WebView 引用
                 webView = this
+
+                // 挂载webview，记录状态，注入 JavaScript 桥接接口
+                WebControllerUtil.getInstance(context).initWebFields(this, true)
+//                WebControllerJBSchemeUtil.getInstance(context).initWebFields(this, true)
+                // 使用 evaluateJavascript api注入 jsBridgeSource、ownBridge2Source
+//                WebControllerJBSchemeUtil.getInstance(context).injectUserScriptsBeforeLoad("<==========tox==========>webview创建时")
+
                 onWebViewCreated?.invoke(this)
             }
         },
@@ -190,18 +172,39 @@ private fun createWebViewClient(
     onPageFinished: (String) -> Unit,
     onReceivedError: (Int, String, String) -> Unit,
     onReceivedHttpError: (Int, String) -> Unit,
-    shouldOverrideUrlLoading: (String) -> Boolean,
+    shouldOverrideUrlLoading: (String?) -> Boolean,
+    context: Context,
 ): WebViewClient {
     return object : WebViewClient() {
 
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
-            url?.let { onPageStarted(it) }
+            url?.let {
+                // 【关键】在页面开始加载时注入 User Scripts
+                // 对于 Android N 以下版本，这是唯一的注入时机
+                // 对于 Android N+，这里作为备用注入
+//                WebControllerJBSchemeUtil.getInstance(context).injectUserScriptsOnPageStarted("<==========tox==========>网页开始加载时")
+                // 重置加载状态
+                WebControllerUtil.getInstance(context).isUrlLoadStop = false
+//                WebControllerJBSchemeUtil.getInstance(context).isUrlLoadStop = false
+
+                onPageStarted(it)
+            }
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
-            url?.let { onPageFinished(it) }
+            url?.let {
+                // 标记页面加载完成
+                WebControllerUtil.getInstance(context).isUrlLoadStop = true
+//                WebControllerJBSchemeUtil.getInstance(context).isUrlLoadStop = true
+                // 处理待推送的消息（如果有）
+                // WebControllerUtil.getInstance(context).evaluateJavascript(null)
+                // 再次确保 JS Bridge 已注入（兜底方案，但有防重复机制，避免重复注入）
+//                WebControllerJBSchemeUtil.getInstance(context).injectJsBridge("<==========tox==========>网页加载完成时")
+
+                onPageFinished(it)
+            }
         }
 
         override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
@@ -219,8 +222,19 @@ private fun createWebViewClient(
         }
 
         override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-            val url = request?.url?.toString() ?: return false
-            return shouldOverrideUrlLoading(url)
+            val uri = request?.url ?: return false
+            // jsBridge定义的协议名 WebControllerJBSchemeUtil 这种方式特有做法
+//            if (uri.scheme == JsBridgeSchemeConstants.JS_BRIDGE_SCHEME_NAME) {
+//                Log.d("ComposableWebView", "shouldOverrideUrlLoading 拦截到jsBridge定义的协议名: $uri")
+//                // 处理 jsBridge 协议携带的事件
+//                WebControllerJBSchemeUtil.getInstance(context).handlerJsBridgeScheme(uri)
+//                return true
+//            }
+
+            // 可以在这里处理特殊 URL scheme
+            // 例如：tel:, mailto:, 或自定义 scheme
+
+            return shouldOverrideUrlLoading(uri.toString())
         }
     }
 }

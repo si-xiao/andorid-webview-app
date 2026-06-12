@@ -9,6 +9,7 @@ import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.addCallback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,12 +18,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -44,21 +41,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
+import com.example.webgame.models.WebViewState
 import com.example.webgame.ui.theme.Purple40
 import com.example.webgame.ui.theme.WebgameTheme
 import com.example.webgame.ui.theme.appColor
 import com.example.webgame.ui.theme.littleGreyColor
+import com.example.webgame.utils.webController.WebControllerJBSchemeUtil
+import com.example.webgame.utils.webController.WebControllerUtil
 import com.example.webgame.widgets.ComposableWebView
-import com.example.webgame.widgets.WebViewState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private lateinit var webController: WebControllerUtil
+//    private lateinit var webController: WebControllerJBSchemeUtil
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 初始化 WebControllerUtil
+        webController = WebControllerUtil.getInstance(this)
+//        webController = WebControllerJBSchemeUtil.getInstance(this)
+
+        // 注册返回按钮回调（替代废弃的 onBackPressed）
+        onBackPressedDispatcher.addCallback(this) {
+            handleBackPress()
+        }
         
         // 启用 Edge-to-Edge 布局
         enableEdgeToEdge()
@@ -127,6 +135,34 @@ class MainActivity : ComponentActivity() {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }
     }
+
+    /**
+     * 处理返回键逻辑
+     */
+    private fun handleBackPress() {
+        val webView = webController.getWebview()
+        if (webView?.canGoBack() == true) {
+            webView.goBack()
+        } else {
+            // 无法后退时，执行默认的返回操作（关闭 Activity）
+            finish()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        webController.getWebview()?.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        webController.getWebview()?.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        webController.getWebview()?.destroy()
+    }
 }
 
 /**
@@ -158,7 +194,7 @@ fun Splash12Screen(onSplashFinished: () -> Unit) {
             delay(splashDuration)
         } else {
             // 如果启动图不存在，立即结束
-            Log.w("Splash12Screen", "启动图资源不存在，跳过启动屏")
+            Log.w("MainActivity Splash12Screen", "启动图资源不存在，跳过启动屏")
         }
         activity?.showSystemBars()
         onSplashFinished()
@@ -220,6 +256,9 @@ fun MainScreen() {
                         url = webUrl,
                         modifier = Modifier.fillMaxSize(),
                         state = webViewState,
+                        onWebViewCreated = { webView ->
+                            Log.d("MainActivity", "webView已创建 webView: $webView")
+                        },
                         onProgressChanged = { progress ->
                             Log.d("MainActivity", "进度: $progress%")
                             showProgressBar = progress < 100

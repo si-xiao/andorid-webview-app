@@ -16,6 +16,7 @@ private const val TAG = "WebUrlManager"
 // const val webUrl: String = "http://192.168.15.200:5174/,https://mainurl1.xyz/,https://b1hoe9.com/"
  const val webUrl: String = "https://mainurl1.xyz/home"
 //const val webUrl: String = "http://192.168.15.199:5174"
+// const val webUrl: String = "http://192.168.18.182:4396"
 const val jpushAppKey: String = "3a8489ca509abfd3e8c9cf65"
 // 暂留着，flutter里边也没做处理，应该是已经没用的字段
 var prefixParams: String = ""
@@ -36,7 +37,7 @@ suspend fun _isUrlHealthy(baseUrl: String): Boolean = withContext(Dispatchers.IO
         // 构建健康检查 URL
         val checkUri = URL("${uri.protocol}://${uri.host}:${if (uri.port != -1) uri.port else ""}/metaapi/v1/domain/check_domain")
 
-        Log.d(TAG, "tox getRandomWebUrl check = $checkUri")
+        Log.d(TAG, "tox _isUrlHealthy check = $checkUri")
 
         // 创建连接（不使用代理）
         val connection = checkUri.openConnection(Proxy.NO_PROXY) as HttpURLConnection
@@ -60,16 +61,16 @@ suspend fun _isUrlHealthy(baseUrl: String): Boolean = withContext(Dispatchers.IO
             val jsonObject = JSONObject(responseBody)
             val apiCode = jsonObject.optInt("code", -1)
 
-            Log.d(TAG, "getRandomWebUrl check = $checkUri, http = $responseCode, apiCode = $apiCode")
+            Log.d(TAG, "_isUrlHealthy check = $checkUri, http = $responseCode, apiCode = $apiCode")
 
             return@withContext apiCode == 200
         }
 
-        Log.d(TAG, "getRandomWebUrl check = $checkUri, http = $responseCode, no body")
+        Log.d(TAG, "_isUrlHealthy check = $checkUri, http = $responseCode, no body")
         false
 
     } catch (e: Exception) {
-        Log.e(TAG, "getRandomWebUrl health error for $baseUrl: ${e.message}")
+        Log.e(TAG, "_isUrlHealthy health error for $baseUrl: ${e.message}")
         false
     }
 }
