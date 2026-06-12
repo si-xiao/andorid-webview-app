@@ -17,7 +17,7 @@ private const val TAG = "WebUrlManager"
  const val webUrl: String = "https://mainurl1.xyz/home"
 //const val webUrl: String = "http://192.168.15.199:5174"
 // const val webUrl: String = "http://192.168.18.182:4396"
-const val jpushAppKey: String = "3a8489ca509abfd3e8c9cf65"
+const val jpushAppKey: String = "b1a61e2fe4004a419c7f996c"
 // 暂留着，flutter里边也没做处理，应该是已经没用的字段
 var prefixParams: String = ""
 

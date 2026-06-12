@@ -13,7 +13,8 @@ class MyApplication : Application() {
         super.onCreate()
         // 全局初始化 sp
         StorageUtil.init(this)
-        // 初始化 jpush
+
+        // 初始化 jpush SDK
         JPushUtil.getInstance(this)
     }
 }

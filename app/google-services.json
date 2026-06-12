@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "635334867764",
-    "project_id": "game-dev-910e7",
-    "storage_bucket": "game-dev-910e7.firebasestorage.app"
+    "project_number": "675453752340",
+    "project_id": "wegame-android-native",
+    "storage_bucket": "wegame-android-native.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:635334867764:android:3991d24da4c4c5ca7e0361",
+        "mobilesdk_app_id": "1:675453752340:android:4d33668b6304c13e8f4301",
         "android_client_info": {
-          "package_name": "pub.techfun.platform.p001"
+          "package_name": "com.example.webgame"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDU1U8xWd36Y0HBUy3qjiE7zwLFPPeYA3I"
+          "current_key": "AIzaSyDWptAXwV0a2OH0tycXELrAh17-sm61HnE"
         }
       ],
       "services": {

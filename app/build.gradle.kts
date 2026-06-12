@@ -30,11 +30,14 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        manifestPlaceholders += mapOf(
-            "ENGAGELAB_PRIVATES_APPKEY" to "3a8489ca509abfd3e8c9cf65",
+        manifestPlaceholders.putAll(mapOf(
+            //appKey，需要与控制台上的一样，与packageName是一对一关系
+            "ENGAGELAB_PRIVATES_APPKEY" to "b1a61e2fe4004a419c7f996c",
+            // Engagelab appChannel，用于渠道统计
             "ENGAGELAB_PRIVATES_CHANNEL" to "developer",
+            // Engagelab process，Engagelabsdk工作所在的进程，注意:开头
             "ENGAGELAB_PRIVATES_PROCESS" to ":remote"
-        )
+        ))
     }
 
     splits {
@@ -135,8 +138,13 @@ dependencies {
     // 导入x系列的 webkit 库，
     // 此库提供的文档级注入，在每次页面开始解析、所有业务 JS 执行前自动注入，刷新 / 跳转都自动重跑，完美解决 “注入时机太早 / 太晚” 问题
     implementation(libs.androidx.webkit)
-
+    // 极光推送 国际版
+    implementation(libs.engagelab)
+    // 极光推送 国际版，sound语音播报功能
+    implementation(libs.oth.sound)
     if (enableGoogleServices) {
+        // 极光推送 国际版，谷歌服务插件包
+        implementation(libs.engagelab.google)
         implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
         implementation("com.google.firebase:firebase-messaging")
     }

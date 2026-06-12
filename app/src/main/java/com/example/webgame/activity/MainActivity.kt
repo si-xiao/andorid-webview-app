@@ -1,10 +1,11 @@
-package com.example.webgame
+package com.example.webgame.activity
 
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -41,12 +42,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import com.example.webgame.getRandomWebUrl
 import com.example.webgame.models.WebViewState
 import com.example.webgame.ui.theme.Purple40
 import com.example.webgame.ui.theme.WebgameTheme
 import com.example.webgame.ui.theme.appColor
 import com.example.webgame.ui.theme.littleGreyColor
-import com.example.webgame.utils.webController.WebControllerJBSchemeUtil
+import com.example.webgame.utils.NotificationPermissionHelper
 import com.example.webgame.utils.webController.WebControllerUtil
 import com.example.webgame.widgets.ComposableWebView
 import kotlinx.coroutines.delay
@@ -58,6 +60,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 检查是否需要请求通知权限
+        NotificationPermissionHelper.getInstance( this).checkPermission()
 
         // 初始化 WebControllerUtil
         webController = WebControllerUtil.getInstance(this)
@@ -110,7 +115,7 @@ class MainActivity : ComponentActivity() {
      */
     fun hideSystemBars() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.hide(android.view.WindowInsets.Type.systemBars())
+            window.insetsController?.hide(WindowInsets.Type.systemBars())
         } else {
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (
@@ -129,7 +134,7 @@ class MainActivity : ComponentActivity() {
      */
     fun showSystemBars() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.show(android.view.WindowInsets.Type.systemBars())
+            window.insetsController?.show(WindowInsets.Type.systemBars())
         } else {
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE

@@ -8,6 +8,15 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- 极光推送 通知震动 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- 极光推送 FCM 通道必须 -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
     <!-- Android 13+ 推送通知必需，否则需用户手动到系统设置中开启 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -61,7 +70,7 @@
         android:theme="@style/Theme.App.Starting"
         tools:targetApi="24">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -84,6 +93,42 @@
                     android:host="app.open" />  <!-- 链接格式将为 zbzbapp212://app.open?param=xxx -->
             </intent-filter>
         </activity>
+
+        <!-- 用于通知点击跳转 须结合ENGAGELAB_PRIVATES_TRANSFER的meta-data标签才能生效 -->
+        <activity
+            android:name="com.example.webgame.activity.MessageActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
+
+        <!--
+        白名单本地中转验证:MTPush4.2.3版本开始,配置ENGAGELAB_PRIVATES_TRANSFER后,sdk会做本地验证;不配置就不做本地验证。
+        如果开启本地验证，请将要跳转的目标Activity配置在这里;如果有多个目标Activity,请用/分割开。
+        这个标签开启后无法冷启动应用了，不知道咋用，先注释
+        -->
+        <!--<meta-data
+            android:name="ENGAGELAB_PRIVATES_TRANSFER"
+            android:value="com.example.webgame.activity.MainActivity/com.example.webgame.activity.MessageActivity" />-->
+
+        <!-- 由于此类具有长连接功能，手机厂商省电优化时可能直接杀死包名带Engagelab字样的service -->
+        <!-- 所以需要开发者继承com.engagelab.app.component.MTCommonService，提升长连接存活率，已达到提高消息到达率的目的 -->
+        <service
+            android:name="com.example.webgame.component.UserService"
+            android:exported="false"
+            android:process="${ENGAGELAB_PRIVATES_PROCESS}">
+            <intent-filter>
+                <action android:name="com.engagelab.privates.intent.USER_SERVICE" />
+            </intent-filter>
+        </service>
+
+        <!-- 用于接收Engagelab业务的回调，包含了长连接状态/通知开关状态/通知消息到达/通知消息点击/通知消息删除/自定义消息/厂商token回调 -->
+        <!-- 不需要配置子进程，此回调中在主进程中，方便业务操作 -->
+        <receiver
+            android:name="com.example.webgame.component.UserReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.engagelab.privates.intent.USER_RECEIVER" />
+            </intent-filter>
+        </receiver>
 
         <!-- 增加如下配置来设置 FCM 通知图标 -->
         <meta-data android:name="com.google.firebase.messaging.default_notification_icon"

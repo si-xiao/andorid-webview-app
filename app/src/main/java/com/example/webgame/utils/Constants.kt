@@ -1,6 +1,21 @@
 package com.example.webgame.utils
 
 
+class Constants {
+    companion object {
+        const val TAG = "Constants"
+
+        /**
+         * 长连接状态是否连接
+         */
+        var isConnectEnable: Boolean = false
+        /**
+         * 通知开关状态是否开启
+         */
+        var isNotificationEnable: Boolean = false
+    }
+}
+
 class JsBridgeSchemeConstants {
     companion object {
         /**

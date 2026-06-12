@@ -14,3 +14,5 @@ val Pink40 = Color(0xFF7D5260)
 val appColor = Color(0xFF010928)
 // 浅灰色
 val littleGreyColor = Color(0xFFE0E0E0)
+// 透明色
+val transparentColor = Color(0x00000000)
